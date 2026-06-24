@@ -1,0 +1,11 @@
+### Get categories
+GET http://localhost:5000/categories
+
+###
+GET http://localhost:5000/stats
+
+###
+GET http://localhost:5000/products?limit=5
+
+###
+GET http://localhost:5000/products?category=Electronics&limit=5
