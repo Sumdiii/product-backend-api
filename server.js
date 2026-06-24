@@ -2,10 +2,18 @@ const express = require('express');
 const { Pool } = require('pg');
 require('dotenv').config();
 const cors = require('cors');
+const path = require('path'); // ✅ ADD THIS
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// ✅ SERVE FRONTEND (VERY IMPORTANT)
+app.use(express.static(__dirname));
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -13,7 +21,7 @@ const pool = new Pool({
     ? { rejectUnauthorized: false } : false
 });
 
-// GET /products?category=X&limit=20&cursor=...
+// GET /products
 app.get('/products', async (req, res) => {
   try {
     const { category, limit = 20, cursor } = req.query;
@@ -53,8 +61,6 @@ app.get('/products', async (req, res) => {
     let nextCursor = null;
     if (hasMore && products.length > 0) {
       const last = products[products.length - 1];
-      // Use ISO timestamp for the cursor so it round-trips reliably when parsed
-      // by the server and by clients (no commas or locale-dependent formatting).
       nextCursor = `${new Date(last.created_at).toISOString()},${last.id}`;
     }
 
